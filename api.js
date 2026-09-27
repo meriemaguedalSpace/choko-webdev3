@@ -5,9 +5,13 @@
 
 // In production the frontend is served by the same Express server,
 // so we use a relative path. In local dev (file://) we fall back to localhost.
+const RENDER_URL = "https://chokoneko-api.onrender.com";
+
 const API_BASE = (window.location.protocol === "file:")
   ? "http://localhost:3001/api"
-  : "/api";
+  : window.location.hostname === "localhost"
+    ? "http://localhost:3001/api"
+    : `${RENDER_URL}/api`;
 
 // ── Token helpers ──────────────────────────────────────────────────────────
 function getToken() {

@@ -1,8 +1,7 @@
-const path = require("path");
-require("dotenv").config({ path: path.join(__dirname, ".env") });
-
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const { runSeed } = require("./db/seed");
 
 const app = express();
@@ -40,11 +39,11 @@ app.use((err, req, res, _next) => {
 
 runSeed()
   .then(() => {
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`🐾 ChokoNeko API running on port ${PORT}`);
+    app.listen(PORT, () => {
+      console.log(`🐾 ChokoNeko API running at http://localhost:${PORT}`);
     });
   })
   .catch((err) => {
-    console.error("Failed to initialize database:", err);
+    console.error("Startup failed:", err.message);
     process.exit(1);
   });

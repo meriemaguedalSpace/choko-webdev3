@@ -1,8 +1,6 @@
 node_modules/
 backend/node_modules/
 backend/.env
+backend/db/choko.db
 .env
 *.db
-*.log
-.DS_Store
-.vscode/
