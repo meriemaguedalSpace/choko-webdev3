@@ -2,8 +2,6 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const { runSeed } = require("./db/seed");
-
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -37,13 +35,6 @@ app.use((err, req, res, _next) => {
   res.status(500).json({ error: "خطأ داخلي في الخادم" });
 });
 
-runSeed()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`🐾 ChokoNeko API running at http://localhost:${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("Startup failed:", err.message);
-    process.exit(1);
-  });
+app.listen(PORT, () => {
+  console.log(`🐾 ChokoNeko API running at http://localhost:${PORT}`);
+});
