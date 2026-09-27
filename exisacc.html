@@ -15,7 +15,7 @@
     <header class="main-header">
         <div class="left-header-group">
             <nav class="nav-links">
-                <a href="index.html" class="nav-item">home</a>
+                <a href="index.HTML" class="nav-item">home</a>
                 <a href="profile.html" class="nav-item special-link" id="nav-profile-link">Profile</a>
                 <a href="blog.html" class="nav-item">blog -,-` ★ ,`-</a>
                 <a href="store.html" class="nav-item">store</a>
@@ -23,9 +23,8 @@
                 <a href="more.html" class="nav-item">more</a>
             </nav>
             <a href="login.html" id="nav-login-link">Login</a>
-            <div class="cart-btn">
-                <span class="cart-icon">🛒</span>
-                <span class="cart-count">0</span>
+            <div class="cart-btn" style="cursor:pointer;">
+                <span id="cartCounter">0</span> 🛒
             </div>
         </div>
         <div class="center-title">ChokoNeko | شوكونيكو - فضاء الذكريات</div>
@@ -40,7 +39,7 @@
 
                 <div class="login-column-box center-flex-column">
                     <h3 class="dive-in-title">ما زلت جديداً هنا؟</h3>
-                    <p class="dive-in-subtitle">انضم إلينا الآن وافتح فضاءً مليئاً بالمفاجآت والذكريات </p>
+                    <p class="dive-in-subtitle">انضم إلينا الآن وافتح فضاءً مليئاً بالمفاجآت والذكريات</p>
                     <a href="login.html" class="dive-in-pill-link outline-brown-btn">سجل حساباً جديداً 🐾</a>
                 </div>
 
@@ -48,7 +47,10 @@
                     <h2 class="login-card-title">تسجيل الدخول ✨</h2>
                     <p class="login-card-subtitle">مرحباً بك مجدداً! سجل دخولك لتتابع رحلتك في فضاء الذكريات</p>
 
-                    <form class="login-form" action="#" method="POST">
+                    <!-- Error feedback -->
+                    <p id="formError" style="color:#e74c3c; display:none; margin-bottom:10px; font-size:0.9rem;"></p>
+
+                    <form id="loginForm">
                         <div class="login-field-group">
                             <label for="login-email">البريد الإلكتروني</label>
                             <input type="email" id="login-email" name="email" placeholder="choko@example.com" required>
@@ -56,11 +58,10 @@
 
                         <div class="login-field-group">
                             <label for="login-password">كلمة المرور</label>
-                            <input type="password" id="login-password" name="password" minlength="8"
-                                placeholder="••••••••" required>
+                            <input type="password" id="login-password" name="password" minlength="8" placeholder="••••••••" required>
                         </div>
 
-                        <button type="submit" class="login-submit-btn solid-brown-btn">تسجيل الدخول</button>
+                        <button type="submit" class="login-submit-btn solid-brown-btn" id="submitBtn">تسجيل الدخول</button>
                     </form>
                 </div>
 
@@ -68,62 +69,101 @@
         </section>
     </div>
 
-    <!-- CART DRAWER SIDEBAR -->
-    <div id="cartDrawer" class="cart-drawer">
-        <div class="cart-drawer-content">
+    <!-- Cart drawer (shared) -->
+    <div id="cartDrawer" class="cart-drawer-overlay">
+        <div class="cart-drawer">
             <div class="cart-drawer-header">
                 <h3>سلة التسوق 🛒</h3>
-                <button id="closeCartBtn" class="close-btn">&times;</button>
+                <button type="button" id="closeCartBtn" class="cart-close-btn">&times;</button>
             </div>
             <div id="cartItemsContainer" class="cart-items-container">
-                <!-- Items render dynamically from script.js -->
+                <p class="empty-cart-msg">السلة فارغة حالياً 🌸</p>
             </div>
             <div class="cart-drawer-footer">
-                <div class="total-price-row">
+                <div class="cart-total-box">
                     <span>المجموع الكلي:</span>
                     <span id="cartTotalPrice">0 DA</span>
                 </div>
-                <button id="cartCheckoutBtn" class="checkout-btn">إتمام الطلب ⚡</button>
+                <button type="button" id="cartCheckoutBtn" class="modal-btn btn-buy" style="width:100%;">إتمام الطلب ⚡</button>
             </div>
         </div>
     </div>
 
-    <!-- CHECKOUT & PRODUCT MODAL -->
+    <!-- Product / Checkout modal (shared) -->
     <div id="productModal" class="modal-overlay">
-        <div class="modal-box">
-            <button id="closeModalBtn" class="close-btn">&times;</button>
-
+        <div class="modal-card">
+            <button type="button" id="closeModalBtn" class="modal-close-btn">&times;</button>
             <div id="modalProductView">
-                <img id="modalProductImg" src="" alt="Product">
-                <h3 id="modalProductName"></h3>
-                <p id="modalProductPrice"></p>
-                <div class="qty-selector">
-                    <button id="qtyMinus">-</button>
-                    <input type="number" id="qtyInput" value="1" min="1" readonly>
-                    <button id="qtyPlus">+</button>
+                <div class="modal-img-box"><img id="modalProductImg" src="" alt="Product Image"></div>
+                <h3 id="modalProductName">اسم المنتج</h3>
+                <div id="modalProductPrice" class="modal-price">0 DA</div>
+                <div class="qty-control">
+                    <label>الكمية:</label>
+                    <div class="qty-btn-group">
+                        <button type="button" id="qtyMinus" class="qty-btn">-</button>
+                        <input type="text" id="qtyInput" value="1" readonly>
+                        <button type="button" id="qtyPlus" class="qty-btn">+</button>
+                    </div>
                 </div>
-                <button id="addToCartBtn" class="action-btn">إضافة للسلة 🛒</button>
-                <button id="directBuyBtn" class="action-btn direct">شراء الآن ⚡</button>
+                <div class="modal-actions">
+                    <button type="button" id="addToCartBtn" class="modal-btn btn-cart">إضافة للسلة 🛒</button>
+                    <button type="button" id="directBuyBtn" class="modal-btn btn-buy">شراء مباشرة ⚡</button>
+                </div>
             </div>
-
-            <form id="modalCheckoutForm" style="display: none;">
-                <h3>معلومات التوصيل 🚚</h3>
-                <input type="text" id="custName" placeholder="الاسم الكامل" required>
-                <input type="tel" id="custPhone" placeholder="رقم الهاتف" required>
-                <input type="text" id="custWilaya" placeholder="الولاية" required>
-                <input type="text" id="custCommune" placeholder="البلدية" required>
-                <input type="text" id="custAddress" placeholder="العنوان التفصيلي">
-                <input type="text" id="custInstagram" placeholder="حساب إنستغرام (اختياري)">
-                <textarea id="custNotes" placeholder="ملاحظات إضافية"></textarea>
-                <div class="form-buttons">
-                    <button type="button" id="backToProductBtn" class="back-btn">رجوع</button>
-                    <button type="submit" class="submit-btn">تأكيد الطلب ✨</button>
+            <form id="modalCheckoutForm" style="display:none;">
+                <h4 class="form-title">معلومات التوصيل 📦</h4>
+                <div class="form-grid">
+                    <div class="form-group full-width"><label>الاسم الكامل *</label><input type="text" id="custName" required placeholder="أمينة بن علي"></div>
+                    <div class="form-group full-width"><label>رقم الهاتف *</label><input type="tel" id="custPhone" required placeholder="06XX XX XX XX"></div>
+                    <div class="form-group"><label>الولاية *</label><input type="text" id="custWilaya" required placeholder="الجزائر"></div>
+                    <div class="form-group"><label>البلدية *</label><input type="text" id="custCommune" required placeholder="القبة"></div>
+                    <div class="form-group full-width"><label>العنوان التفصيلي</label><input type="text" id="custAddress" placeholder="الحي، شارع..."></div>
+                    <div class="form-group full-width"><label>حساب الانستغرام (اختياري)</label><input type="text" id="custInstagram" placeholder="@username"></div>
+                    <div class="form-group full-width"><label>ملاحظات إضافية</label><textarea id="custNotes" rows="2" placeholder="أي ملاحظة بخصوص الطلب..."></textarea></div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="backToProductBtn" class="modal-btn btn-back-modal">تراجع</button>
+                    <button type="submit" class="modal-btn btn-submit">تأكيد الطلب ✉️</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <script src="api.js"></script>
     <script src="script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // If already logged in, send to profile
+            if (isLoggedIn()) {
+                window.location.href = "profile.html";
+                return;
+            }
+
+            const form      = document.getElementById("loginForm");
+            const errorEl   = document.getElementById("formError");
+            const submitBtn = document.getElementById("submitBtn");
+
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                errorEl.style.display = "none";
+                submitBtn.disabled = true;
+                submitBtn.textContent = "جاري تسجيل الدخول...";
+
+                const email    = document.getElementById("login-email").value.trim();
+                const password = document.getElementById("login-password").value;
+
+                try {
+                    await login(email, password);
+                    window.location.href = "profile.html";
+                } catch (err) {
+                    errorEl.textContent = err.message;
+                    errorEl.style.display = "block";
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "تسجيل الدخول";
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

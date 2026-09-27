@@ -72,41 +72,68 @@ function toggleManualAudio(audioId, buttonElement) {
 }
 
 // ==========================================
-// GUESTBOOK CONTROLLER
+// GUESTBOOK CONTROLLER  (API-connected)
 // ==========================================
-document.addEventListener("DOMContentLoaded", function () {
-    const submitBtn = document.querySelector(".msg-submit-btn");
-    const nameInput = document.querySelector(".msg-name-input");
-    const textInput = document.querySelector(".msg-text-input");
+document.addEventListener("DOMContentLoaded", async function () {
+    const submitBtn    = document.querySelector(".msg-submit-btn");
+    const nameInput    = document.querySelector(".msg-name-input");
+    const textInput    = document.querySelector(".msg-text-input");
     const messageStream = document.querySelector(".message-stream");
 
-    if (submitBtn && nameInput && textInput && messageStream) {
-        submitBtn.addEventListener("click", function () {
+    if (!messageStream) return;
+
+    // Load existing messages from API
+    if (typeof getGuestbook === "function") {
+        try {
+            const messages = await getGuestbook();
+            messageStream.innerHTML = "";
+            messages.slice().reverse().forEach(msg => {
+                const post = document.createElement("div");
+                post.className = "guest-post";
+                post.innerHTML = `<strong>${msg.name}</strong><p>♡ ${msg.message} ♡</p>`;
+                messageStream.appendChild(post);
+            });
+        } catch (e) {
+            console.warn("Could not load guestbook:", e);
+        }
+    }
+
+    if (submitBtn && nameInput && textInput) {
+        async function submitMessage() {
             const nameValue = nameInput.value.trim();
             const textValue = textInput.value.trim();
 
-            if (nameValue === "" || textValue === "") {
+            if (!nameValue || !textValue) {
                 alert("رجاءً قم بملء اسمك ورسالتك أولاً! ♡");
                 return;
             }
 
-            const newPost = document.createElement("div");
-            newPost.className = "guest-post";
-            newPost.innerHTML = `
-                <strong>${nameValue}</strong>
-                <p>♡ ${textValue} ♡</p>
-            `;
+            try {
+                let newMsg;
+                if (typeof postGuestbookMessage === "function") {
+                    newMsg = await postGuestbookMessage(nameValue, textValue);
+                } else {
+                    newMsg = { name: nameValue, message: textValue };
+                }
 
-            messageStream.appendChild(newPost);
-            messageStream.scrollTop = messageStream.scrollHeight;
-            nameInput.value = "";
-            textInput.value = "";
-        });
+                const post = document.createElement("div");
+                post.className = "guest-post";
+                post.innerHTML = `<strong>${newMsg.name}</strong><p>♡ ${newMsg.message} ♡</p>`;
+                messageStream.appendChild(post);
+                messageStream.scrollTop = messageStream.scrollHeight;
+                nameInput.value = "";
+                textInput.value = "";
+            } catch (err) {
+                alert(err.message || "تعذّر إرسال الرسالة، حاول مجدداً.");
+            }
+        }
+
+        submitBtn.addEventListener("click", submitMessage);
 
         textInput.addEventListener("keydown", function (event) {
             if (event.key === "Enter" && !event.shiftKey) {
                 event.preventDefault();
-                submitBtn.click();
+                submitMessage();
             }
         });
     }
@@ -114,49 +141,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // ==========================================
 // RETRO TV & DIRECT PRODUCTS SYSTEM
+// Products are now loaded from the API.
+// These arrays serve as fallbacks if the API is unreachable.
 // ==========================================
-const spacetoonProducts = [
-    { name: " Rimy & Mateo sticker", price: " 350 DA", img: "assets/products/rimy & mateo.png" },
-    { name: 'Hunter x hunter sticker', price: " 150 DA", img: "assets/products/hunter x hunter.png" },
-    { name: 'نجمة الطبخ sticker', price: " 300 DA", img: "assets/products/cooking idol.png" },
-    { name: 'نجمة الطبخ poster', price: " 700 DA", img: "assets/products/poster.png" },
-    { name: 'نجمة الطبخ photocard', price: " 300 DA", img: "assets/products/photocard.png" },
-    { name: 'Doramon sticker ', price: " 150 DA", img: "assets/products/doramon.png" },
-    { name: 'Emily sticker', price: " 200 DA", img: "assets/products/emily.png" },
-    { name: 'ايروكا sticker', price: " 200 DA", img: "assets/products/eroka.png" },
-    { name: 'katties sticker', price: " 200DA", img: "assets/products/katties.png" },
-    { name: 'البؤساء : كوزيت & ايبونينsticker', price: " 200 DA", img: "assets/products/cosette n ebonin.png" },
-    { name: 'البؤساء : ازيلماsticker', price: " 150 DA", img: "assets/products/azelma.png" },
-    { name: 'Strawberry shortcake sticker', price: " 200 DA", img: "assets/products/shortcake.png" },
-    { name: 'مغامرات نغم sticker', price: " 200 DA", img: "assets/products/nagham.png" },
-    { name: 'عهد الاصدقاء sticker', price: "200 DA", img: "assets/products/romeo.png" },
-    { name: 'سالي sticker', price: " 200 DA", img: "assets/products/sally.png" },
-    { name: 'sandy bell sticker', price: " 150 DA", img: "assets/products/sandybel.png" },
-    { name: 'بائعة الكبريت sticker', price: " 150 DA", img: "assets/products/meskina.png" },
-    { name: 'محققوا الحيوانات sticker sheet', price: " 350 DA", img: "assets/products/animal.png" },
-    { name: 'دروبي مع دوريمي sticker sheet', price: " 350 DA", img: "assets/products/dorobi.png" },
-    { name: 'Jewelpet twinkle Rinko & Akari sticker sheet', price: " 350 DA", img: "assets/products/pink.png" },
-    { name: 'Jewelpet twinkle Aoi & Sara sticker sheet', price: " 350 DA", img: "assets/products/blue.png" },
-    { name: 'Jewelpet twinkle Minami & Miria sticker sheet', price: " 350 DA", img: "assets/products/green.png" },
-    { name: 'Detective Conan sticker sheet', price: " 350 DA", img: "assets/products/conan.png" },  
-    { name: 'Inyusha sticker sheet', price: " 250 DA", img: "assets/products/inyusha.png" },
-    { name: 'ينبوع الاحلام sticker sheet', price: " 250 DA", img: "assets/products/red.png" },
-    { name: 'دريلاند sticker sheet', price: " 250 DA", img: "assets/products/dryland.png" },
-    { name: 'همتارو sticker sheet', price: " 250 DA", img: "assets/products/hamtaro.png" },
-    { name: 'BookMark Dryland: Dafina & Milo', price: "300 DA", img: "assets/products/Dafina & Milo.png" },
-    { name: 'BookMark: Jewelpet Twinkle season 1', price: "300 DA", img: "assets/products/jewelpet friends.png" }
-];
 
-const disneyProducts = [
-    { name: "Miraculous Adrienette sticker", price: "200 DA", img: "assets/products/miraculous.png" },
-    { name: "Miraculous Chatnoir sticker ", price: "200 DA", img: "assets/products/chatnoir.png" },
-];
+// Normalise a product row from the API into the shape the rest of the code expects.
+function normaliseProduct(p) {
+    return {
+        id:    p.id,
+        name:  p.name,
+        price: `${p.price} DA`,
+        numericPrice: p.price,
+        img:   p.img,
+        channel: p.channel
+    };
+}
 
-const nickelodeonProducts = [
-    { name: "Sam & Cat", price: "300 DA", img: "assets/products/samandcat.png" }
-];
+// Cache populated by the async loader below
+let spacetoonProducts  = [];
+let disneyProducts     = [];
+let nickelodeonProducts = [];
 
-document.addEventListener("DOMContentLoaded", () => {
+// Fetch once and cache — called before the TV system needs the data
+async function fetchAllProducts() {
+    if (typeof getProducts !== "function") return;
+    try {
+        const all = await getProducts();
+        spacetoonProducts   = all.filter(p => p.channel === "spacetoon").map(normaliseProduct);
+        disneyProducts      = all.filter(p => p.channel === "disney").map(normaliseProduct);
+        nickelodeonProducts = all.filter(p => p.channel === "nickelodeon").map(normaliseProduct);
+    } catch (e) {
+        console.warn("Could not fetch products from API, UI will be empty:", e);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    // Load products from API before setting up the TV
+    await fetchAllProducts();
+
     const layerPowerOff = document.getElementById("layerPowerOff");
     const layerChannels = document.getElementById("layerChannels");
     const layerSpacetoon = document.getElementById("layerSpacetoon");
@@ -614,89 +636,73 @@ document.addEventListener("DOMContentLoaded", () => {
         if (modalProductView) modalProductView.style.display = "block";
     });
 
-   modalCheckoutForm?.addEventListener("submit", (e) => {
+   modalCheckoutForm?.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // Récupération des informations saisies par le client
-        const fullName = document.getElementById("custName")?.value || "";
-        const phone = document.getElementById("custPhone")?.value || "";
-        const wilaya = document.getElementById("custWilaya")?.value || "";
-        const commune = document.getElementById("custCommune")?.value || "";
-        const address = document.getElementById("custAddress")?.value || "";
-        const instagram = document.getElementById("custInstagram")?.value || "N/A";
-        const notes = document.getElementById("custNotes")?.value || "Aucune";
+        const fullName  = document.getElementById("custName")?.value.trim()    || "";
+        const phone     = document.getElementById("custPhone")?.value.trim()   || "";
+        const wilaya    = document.getElementById("custWilaya")?.value.trim()  || "";
+        const commune   = document.getElementById("custCommune")?.value.trim() || "";
+        const address   = document.getElementById("custAddress")?.value.trim() || "";
+        const instagram = document.getElementById("custInstagram")?.value.trim() || "";
+        const notes     = document.getElementById("custNotes")?.value.trim()   || "";
 
-        // Construction du résumé de la commande
-        let orderSummary = "";
+        let orderItems = [];
         let calculatedTotal = 0;
 
         if (cart && cart.length > 0) {
-            orderSummary = cart.map(item => {
-                const itemTotal = item.numericPrice * item.qty;
-                calculatedTotal += itemTotal;
-                if (item.isJewelry) {
-                    return `• ${item.name} (Qté: ${item.qty}) - ${itemTotal} DA\n  Détails: ${item.detailsHTML.replace(/<br>/g, ', ').replace(/<\/?strong>/g, '')}`;
-                }
-                return `• ${item.name} (Qté: ${item.qty}) - ${itemTotal} DA`;
-            }).join("\n");
+            orderItems = cart.map(item => {
+                calculatedTotal += item.numericPrice * item.qty;
+                return { name: item.name, qty: item.qty, numericPrice: item.numericPrice, isJewelry: item.isJewelry || false, detailsHTML: item.detailsHTML || "" };
+            });
         } else if (currentSelectedProduct) {
-            orderSummary = `• ${currentSelectedProduct.name} - ${currentSelectedProduct.price}`;
-            calculatedTotal = parsePrice(currentSelectedProduct.price);
+            const p = currentSelectedProduct;
+            calculatedTotal = parsePrice(p.price);
+            orderItems = [{ name: p.name, qty: 1, numericPrice: calculatedTotal }];
         }
 
-        const totalPrice = calculatedTotal > 0 ? `${calculatedTotal} DA` : (currentSelectedProduct?.price || "0 DA");
+        const submitBtn = modalCheckoutForm.querySelector('[type="submit"]');
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "جاري الإرسال..."; }
 
-        // Paramètres mappés sur le modèle EmailJS (Supporte les 2 nomenclatures de clés)
-        const templateParams = {
-            // Nouveaux identifiants
-            fullName: fullName,
-            orderSummary: orderSummary,
-            
-            // Anciens identifiants standard (compatibilité modèle)
-            customer_name: fullName,
-            customer_phone: phone,
-            customer_wilaya: wilaya,
-            customer_commune: commune,
-            customer_address: address,
-            customer_instagram: instagram,
-            customer_notes: notes,
-            order_details: orderSummary,
-            total_price: totalPrice,
-            
-            // Champs génériques EmailJS
-            to_name: "Admin",
-            phone: phone,
-            wilaya: wilaya,
-            commune: commune,
-            address: address,
-            instagram: instagram,
-            notes: notes,
-            totalPrice: totalPrice
-        };
-
-        // Envoi de la notification de commande via EmailJS
-        if (typeof emailjs !== "undefined" && EMAILJS_SERVICE_ID) {
-            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-                .then(() => {
-                    alert(`شكراً لك ${fullName || ''}! تم استلام طلبك بنجاح ✨`);
-                    cart = [];
-                    saveCart();
-                    renderCart();
-                    modalCheckoutForm.reset();
-                    productModal?.classList.remove("active-modal", "active");
-                })
-                .catch((error) => {
-                    // Affichage précis de l'erreur pour le débogage
-                    console.error("Erreur EmailJS détaillée :", error);
-                    alert("Erreur EmailJS (" + error.status + ") : " + JSON.stringify(error.text || error));
+        try {
+            // Send to real backend API
+            if (typeof placeOrder === "function") {
+                await placeOrder({
+                    full_name: fullName,
+                    phone,
+                    wilaya,
+                    commune,
+                    address,
+                    instagram,
+                    notes,
+                    items: orderItems,
+                    total_price: calculatedTotal
                 });
-        } else {
-            alert(`شكراً لك ${fullName || ''}! تم استلام طلبك بنجاح ✨`);
+            }
+
+            // Also send EmailJS notification to shop owner (best-effort)
+            if (typeof emailjs !== "undefined" && typeof EMAILJS_SERVICE_ID !== "undefined" && EMAILJS_SERVICE_ID) {
+                const summary = orderItems.map(i => `• ${i.name} (x${i.qty}) - ${i.numericPrice * i.qty} DA`).join("\n");
+                emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                    fullName, customer_name: fullName,
+                    customer_phone: phone, customer_wilaya: wilaya,
+                    customer_commune: commune, customer_address: address,
+                    customer_instagram: instagram, customer_notes: notes,
+                    order_details: summary, total_price: `${calculatedTotal} DA`,
+                    to_name: "Admin"
+                }).catch(err => console.warn("EmailJS notification failed:", err));
+            }
+
+            alert(`شكراً لك ${fullName}! تم استلام طلبك بنجاح ✨`);
             cart = [];
             saveCart();
             renderCart();
             modalCheckoutForm.reset();
             productModal?.classList.remove("active-modal", "active");
+        } catch (err) {
+            alert(`حدث خطأ أثناء إرسال الطلب: ${err.message}`);
+        } finally {
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "تأكيد الطلب ✉️"; }
         }
     });
 });

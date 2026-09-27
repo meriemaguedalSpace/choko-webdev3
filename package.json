@@ -1,0 +1,11 @@
+{
+  "name": "chokoneko",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node backend/server.js",
+    "seed": "node backend/db/seed.js"
+  }
+}

@@ -6,13 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChokoNeko | الملف الشخصي</title>
     <link rel="stylesheet" href="style.css">
-    <!-- EmailJS SDK -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    <script type="text/javascript">
-        (function () {
-            emailjs.init("OwvcMMcpQn4hiiOyJJCdd"); // Remplacez par votre Public Key
-        })();
-    </script>
 </head>
 
 <body>
@@ -20,7 +13,7 @@
     <header class="main-header">
         <div class="left-header-group">
             <nav class="nav-links">
-                <a href="index.html" class="nav-item">home</a>
+                <a href="index.HTML" class="nav-item">home</a>
                 <a href="profile.html" class="nav-item special-link" id="nav-profile-link">Profile</a>
                 <a href="blog.html" class="nav-item">blog -,-` ★ ,`-</a>
                 <a href="store.html" class="nav-item">store</a>
@@ -39,16 +32,17 @@
     </header>
 
     <div class="profile-container">
+        <!-- ── Sidebar ─────────────────────────────────────────────────── -->
         <aside class="profile-sidebar">
             <div class="user-card">
                 <div class="avatar-wrapper">
-                    <div class="avatar-circle">C</div>
+                    <div class="avatar-circle" id="avatarInitial">C</div>
                     <img src="" alt="Profile Avatar" class="avatar-img hidden" id="avatarImage">
                     <label for="avatarInput" class="avatar-upload-btn" title="تغيير الصورة">📷</label>
                     <input type="file" id="avatarInput" class="hidden-input" accept="image/*">
                 </div>
-                <h3>اسم المستخدم</h3>
-                <p>choko@example.com</p>
+                <h3 id="sidebarUsername">اسم المستخدم</h3>
+                <p id="sidebarEmail">choko@example.com</p>
                 <span class="user-badge">عضو مميز 🐾</span>
             </div>
 
@@ -56,68 +50,93 @@
                 <button class="menu-btn active" onclick="switchTab('info', event)">👤 المعلومات الشخصية</button>
                 <button class="menu-btn" onclick="switchTab('orders', event)">📦 طلباتي</button>
                 <button class="menu-btn" onclick="switchTab('settings', event)">⚙️ إعدادات الحساب</button>
-                <button class="menu-btn logout-btn" onclick="location.href='index.html'">🚪 تسجيل الخروج</button>
+                <button class="menu-btn logout-btn" id="logoutBtn">🚪 تسجيل الخروج</button>
             </nav>
         </aside>
 
+        <!-- ── Main content ───────────────────────────────────────────── -->
         <main class="profile-content">
+
+            <!-- Personal info -->
             <section id="info-section" class="profile-section active">
                 <h2>المعلومات الشخصية</h2>
-                <form class="profile-form">
+                <p id="infoFeedback" style="display:none; margin-bottom:10px; font-size:0.9rem;"></p>
+                <form id="profileInfoForm" class="profile-form">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="fullName">الاسم الكامل</label>
-                            <input type="text" id="fullName" placeholder="Choko Fan">
+                            <label for="profFullName">الاسم الكامل</label>
+                            <input type="text" id="profFullName" placeholder="Choko Fan">
                         </div>
                         <div class="form-group">
-                            <label for="phone">رقم الهاتف</label>
-                            <input type="tel" id="phone" placeholder="06XXXXXXXX">
+                            <label for="profPhone">رقم الهاتف</label>
+                            <input type="tel" id="profPhone" placeholder="06XXXXXXXX">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="profWilaya">الولاية</label>
+                            <input type="text" id="profWilaya" placeholder="الجزائر">
+                        </div>
+                        <div class="form-group">
+                            <label for="profCommune">البلدية</label>
+                            <input type="text" id="profCommune" placeholder="القبة">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="userBio">نبذة عنك</label>
-                        <textarea id="userBio" rows="3" placeholder="اكتب شيئاً عن نفسك..."></textarea>
+                        <label for="profAddress">العنوان التفصيلي</label>
+                        <input type="text" id="profAddress" placeholder="الحي، الشارع...">
                     </div>
-                    <button type="button" class="save-btn">حفظ التغييرات</button>
+                    <div class="form-group">
+                        <label for="profInstagram">حساب إنستغرام</label>
+                        <input type="text" id="profInstagram" placeholder="@username">
+                    </div>
+                    <div class="form-group">
+                        <label for="profBio">نبذة عنك</label>
+                        <textarea id="profBio" rows="3" placeholder="اكتب شيئاً عن نفسك..."></textarea>
+                    </div>
+                    <button type="submit" class="save-btn">حفظ التغييرات</button>
                 </form>
             </section>
 
+            <!-- My orders -->
             <section id="orders-section" class="profile-section">
                 <h2>طلباتي</h2>
-                <p class="empty-msg">لا توجد طلبات حالية حتى الآن 🛒</p>
+                <div id="ordersContainer">
+                    <p class="empty-msg">جاري تحميل الطلبات...</p>
+                </div>
             </section>
 
+            <!-- Account settings / change password -->
             <section id="settings-section" class="profile-section">
                 <h2>إعدادات الحساب</h2>
-                <form class="profile-form">
+                <p id="pwFeedback" style="display:none; margin-bottom:10px; font-size:0.9rem;"></p>
+                <form id="changePasswordForm" class="profile-form">
                     <div class="form-group">
                         <label for="currPassword">كلمة المرور الحالية</label>
-                        <input type="password" id="currPassword">
+                        <input type="password" id="currPassword" required>
                     </div>
                     <div class="form-group">
                         <label for="newPassword">كلمة المرور الجديدة</label>
-                        <input type="password" id="newPassword">
+                        <input type="password" id="newPassword" minlength="8" required>
                     </div>
-                    <button type="button" class="save-btn">تحديث كلمة المرور</button>
+                    <button type="submit" class="save-btn">تحديث كلمة المرور</button>
                 </form>
             </section>
+
         </main>
     </div>
 
-    <!-- PRODUCT & CHECKOUT MODAL -->
+    <!-- ── Product / Checkout modal ───────────────────────────────────────── -->
     <div id="productModal" class="modal-overlay">
         <div class="modal-card">
             <button type="button" id="closeModalBtn" class="modal-close-btn">&times;</button>
 
-            <!-- STEP 1: PRODUCT PREVIEW -->
             <div id="modalProductView">
                 <div class="modal-img-box">
                     <img id="modalProductImg" src="" alt="Product Image">
                 </div>
                 <h3 id="modalProductName">اسم المنتج</h3>
                 <div id="modalProductPrice" class="modal-price">0 DA</div>
-
-                <!-- QUANTITY CONTROLS -->
                 <div class="qty-control">
                     <label>الكمية:</label>
                     <div class="qty-btn-group">
@@ -126,47 +145,23 @@
                         <button type="button" id="qtyPlus" class="qty-btn">+</button>
                     </div>
                 </div>
-
                 <div class="modal-actions">
                     <button type="button" id="addToCartBtn" class="modal-btn btn-cart">إضافة للسلة 🛒</button>
                     <button type="button" id="directBuyBtn" class="modal-btn btn-buy">شراء مباشرة ⚡</button>
                 </div>
             </div>
 
-            <!-- STEP 2: DIRECT CHECKOUT FORM -->
             <form id="modalCheckoutForm" style="display: none;">
                 <h4 class="form-title">معلومات التوصيل 📦</h4>
                 <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label>الاسم الكامل *</label>
-                        <input type="text" id="custName" required placeholder="مثال: أمينة بن علي">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>رقم الهاتف *</label>
-                        <input type="tel" id="custPhone" required placeholder="06XX XX XX XX">
-                    </div>
-                    <div class="form-group">
-                        <label>الولاية *</label>
-                        <input type="text" id="custWilaya" required placeholder="الجزائر">
-                    </div>
-                    <div class="form-group">
-                        <label>البلدية *</label>
-                        <input type="text" id="custCommune" required placeholder="الرغاية">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>العنوان التفصيلي</label>
-                        <input type="text" id="custAddress" placeholder="الحي، شارع...">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>حساب الانستغرام (اختياري)</label>
-                        <input type="text" id="custInstagram" placeholder="@username">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>ملاحظات إضافية</label>
-                        <textarea id="custNotes" rows="2" placeholder="أي ملاحظة بخصوص الطلب..."></textarea>
-                    </div>
+                    <div class="form-group full-width"><label>الاسم الكامل *</label><input type="text" id="custName" required placeholder="أمينة بن علي"></div>
+                    <div class="form-group full-width"><label>رقم الهاتف *</label><input type="tel" id="custPhone" required placeholder="06XX XX XX XX"></div>
+                    <div class="form-group"><label>الولاية *</label><input type="text" id="custWilaya" required placeholder="الجزائر"></div>
+                    <div class="form-group"><label>البلدية *</label><input type="text" id="custCommune" required placeholder="القبة"></div>
+                    <div class="form-group full-width"><label>العنوان التفصيلي</label><input type="text" id="custAddress" placeholder="الحي، شارع..."></div>
+                    <div class="form-group full-width"><label>حساب الانستغرام (اختياري)</label><input type="text" id="custInstagram" placeholder="@username"></div>
+                    <div class="form-group full-width"><label>ملاحظات إضافية</label><textarea id="custNotes" rows="2" placeholder="أي ملاحظة بخصوص الطلب..."></textarea></div>
                 </div>
-
                 <div class="modal-actions">
                     <button type="button" id="backToProductBtn" class="modal-btn btn-back-modal">تراجع</button>
                     <button type="submit" class="modal-btn btn-submit">تأكيد الطلب ✉️</button>
@@ -175,87 +170,202 @@
         </div>
     </div>
 
-    <!-- CART DRAWER / OVERLAY (NOW OUTSIDE PRODUCT MODAL) -->
+    <!-- ── Cart Drawer ─────────────────────────────────────────────────────── -->
     <div id="cartDrawer" class="cart-drawer-overlay">
         <div class="cart-drawer">
             <div class="cart-drawer-header">
                 <h3>سلة التسوق 🛒</h3>
                 <button type="button" id="closeCartBtn" class="cart-close-btn">&times;</button>
             </div>
-
-            <!-- Dynamic Cart Items Container -->
             <div id="cartItemsContainer" class="cart-items-container">
                 <p class="empty-cart-msg">السلة فارغة حالياً 🌸</p>
             </div>
-
-            <!-- Footer with Total & Checkout -->
             <div class="cart-drawer-footer">
                 <div class="cart-total-box">
                     <span>المجموع الكلي:</span>
                     <span id="cartTotalPrice">0 DA</span>
                 </div>
-                <button type="button" id="cartCheckoutBtn" class="modal-btn btn-buy" style="width: 100%;">إتمام الطلب
-                    ⚡</button>
+                <button type="button" id="cartCheckoutBtn" class="modal-btn btn-buy" style="width: 100%;">إتمام الطلب ⚡</button>
             </div>
         </div>
     </div>
 
-    <!-- CART DRAWER SIDEBAR -->
-    <div id="cartDrawer" class="cart-drawer">
-        <div class="cart-drawer-content">
-            <div class="cart-drawer-header">
-                <h3>سلة التسوق 🛒</h3>
-                <button id="closeCartBtn" class="close-btn">&times;</button>
-            </div>
-            <div id="cartItemsContainer" class="cart-items-container">
-                <!-- Items render dynamically from script.js -->
-            </div>
-            <div class="cart-drawer-footer">
-                <div class="total-price-row">
-                    <span>المجموع الكلي:</span>
-                    <span id="cartTotalPrice">0 DA</span>
-                </div>
-                <button id="cartCheckoutBtn" class="checkout-btn">إتمام الطلب ⚡</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- CHECKOUT & PRODUCT MODAL -->
-    <div id="productModal" class="modal-overlay">
-        <div class="modal-box">
-            <button id="closeModalBtn" class="close-btn">&times;</button>
-
-            <div id="modalProductView">
-                <img id="modalProductImg" src="" alt="Product">
-                <h3 id="modalProductName"></h3>
-                <p id="modalProductPrice"></p>
-                <div class="qty-selector">
-                    <button id="qtyMinus">-</button>
-                    <input type="number" id="qtyInput" value="1" min="1" readonly>
-                    <button id="qtyPlus">+</button>
-                </div>
-                <button id="addToCartBtn" class="action-btn">إضافة للسلة 🛒</button>
-                <button id="directBuyBtn" class="action-btn direct">شراء الآن ⚡</button>
-            </div>
-
-            <form id="modalCheckoutForm" style="display: none;">
-                <h3>معلومات التوصيل 🚚</h3>
-                <input type="text" id="custName" placeholder="الاسم الكامل" required>
-                <input type="tel" id="custPhone" placeholder="رقم الهاتف" required>
-                <input type="text" id="custWilaya" placeholder="الولاية" required>
-                <input type="text" id="custCommune" placeholder="البلدية" required>
-                <input type="text" id="custAddress" placeholder="العنوان التفصيلي">
-                <input type="text" id="custInstagram" placeholder="حساب إنستغرام (اختياري)">
-                <textarea id="custNotes" placeholder="ملاحظات إضافية"></textarea>
-                <div class="form-buttons">
-                    <button type="button" id="backToProductBtn" class="back-btn">رجوع</button>
-                    <button type="submit" class="submit-btn">تأكيد الطلب ✨</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
+    <script src="api.js"></script>
     <script src="script.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+
+        // ── Guard: must be logged in ─────────────────────────────────────
+        if (!isLoggedIn()) {
+            window.location.href = "exisacc.html";
+            return;
+        }
+
+        // ── Load profile from API ────────────────────────────────────────
+        async function loadProfile() {
+            try {
+                const user = await getProfile();
+
+                // Sidebar
+                document.getElementById("sidebarUsername").textContent = user.username || "مستخدم";
+                document.getElementById("sidebarEmail").textContent    = user.email    || "";
+
+                // Avatar
+                const avatarInitial = document.getElementById("avatarInitial");
+                const avatarImage   = document.getElementById("avatarImage");
+
+                if (user.avatar_b64) {
+                    avatarImage.src = user.avatar_b64;
+                    avatarImage.classList.remove("hidden");
+                    avatarInitial.style.display = "none";
+                } else {
+                    const initial = user.username ? user.username[0].toUpperCase() : "أ";
+                    avatarInitial.textContent   = initial;
+                    avatarInitial.style.display = "";
+                    avatarImage.classList.add("hidden");
+                }
+
+                // Info form
+                document.getElementById("profFullName").value  = user.username  || "";
+                document.getElementById("profPhone").value     = user.phone     || "";
+                document.getElementById("profInstagram").value = user.instagram || "";
+                document.getElementById("profWilaya").value    = user.wilaya    || "";
+                document.getElementById("profCommune").value   = user.commune   || "";
+                document.getElementById("profAddress").value   = user.address   || "";
+                document.getElementById("profBio").value       = user.bio       || "";
+
+            } catch (err) {
+                console.error("Failed to load profile:", err);
+                if (err.message.includes("مصرح") || err.message.includes("صالحة")) {
+                    logout();
+                }
+            }
+        }
+
+        // ── Load orders ──────────────────────────────────────────────────
+        async function loadOrders() {
+            const container = document.getElementById("ordersContainer");
+            try {
+                const orders = await getMyOrders();
+                if (!orders.length) {
+                    container.innerHTML = `<p class="empty-msg">لا توجد طلبات حالية حتى الآن 🛒</p>`;
+                    return;
+                }
+
+                container.innerHTML = orders.map(order => {
+                    const itemsList = order.items.map(i =>
+                        `<li>${i.name} × ${i.qty} — ${i.numericPrice * i.qty} DA</li>`
+                    ).join("");
+
+                    const statusMap = { pending: "⏳ قيد الانتظار", processing: "🔄 قيد المعالجة", shipped: "🚚 تم الشحن", delivered: "✅ تم التوصيل" };
+                    const statusLabel = statusMap[order.status] || order.status;
+                    const date = new Date(order.created_at).toLocaleDateString("ar-DZ");
+
+                    return `
+                        <div class="order-card" style="background:rgba(255,255,255,0.05); border-radius:12px; padding:16px; margin-bottom:14px; border:1px solid rgba(255,182,193,0.3);">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                <span style="color:#ffb6c1; font-weight:bold;">طلب #${order.id}</span>
+                                <span style="font-size:0.85rem; opacity:0.7;">${date}</span>
+                            </div>
+                            <ul style="margin:8px 0; padding-right:18px; font-size:0.9rem; opacity:0.85;">${itemsList}</ul>
+                            <div style="display:flex; justify-content:space-between; margin-top:10px;">
+                                <span style="color:#ffdf7a; font-weight:bold;">${order.total_price} DA</span>
+                                <span style="font-size:0.85rem;">${statusLabel}</span>
+                            </div>
+                        </div>`;
+                }).join("");
+            } catch (err) {
+                container.innerHTML = `<p class="empty-msg">تعذّر تحميل الطلبات 😕</p>`;
+            }
+        }
+
+        // ── Save profile ─────────────────────────────────────────────────
+        document.getElementById("profileInfoForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const feedback = document.getElementById("infoFeedback");
+            feedback.style.display = "none";
+
+            try {
+                await updateProfile({
+                    username:  document.getElementById("profFullName").value.trim(),
+                    phone:     document.getElementById("profPhone").value.trim(),
+                    instagram: document.getElementById("profInstagram").value.trim(),
+                    wilaya:    document.getElementById("profWilaya").value.trim(),
+                    commune:   document.getElementById("profCommune").value.trim(),
+                    address:   document.getElementById("profAddress").value.trim(),
+                    bio:       document.getElementById("profBio").value.trim()
+                });
+                feedback.textContent = "تم حفظ التغييرات بنجاح ✅";
+                feedback.style.color = "#2ecc71";
+                feedback.style.display = "block";
+                loadProfile();
+            } catch (err) {
+                feedback.textContent = err.message;
+                feedback.style.color = "#e74c3c";
+                feedback.style.display = "block";
+            }
+        });
+
+        // ── Change password ───────────────────────────────────────────────
+        document.getElementById("changePasswordForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const feedback = document.getElementById("pwFeedback");
+            feedback.style.display = "none";
+
+            const curr = document.getElementById("currPassword").value;
+            const next = document.getElementById("newPassword").value;
+
+            try {
+                const res = await changePassword(curr, next);
+                feedback.textContent = res.message;
+                feedback.style.color = "#2ecc71";
+                feedback.style.display = "block";
+                document.getElementById("changePasswordForm").reset();
+            } catch (err) {
+                feedback.textContent = err.message;
+                feedback.style.color = "#e74c3c";
+                feedback.style.display = "block";
+            }
+        });
+
+        // ── Avatar upload ─────────────────────────────────────────────────
+        document.getElementById("avatarInput").addEventListener("change", async function (e) {
+            const file = e.target.files[0];
+            if (!file || !file.type.startsWith("image/")) return;
+
+            const reader = new FileReader();
+            reader.onload = async (evt) => {
+                try {
+                    await updateProfile({ avatar_b64: evt.target.result });
+                    loadProfile();
+                } catch (err) {
+                    console.error("Avatar upload failed:", err);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // ── Logout ────────────────────────────────────────────────────────
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            if (confirm("هل أنت متأكد من رغبتك في تسجيل الخروج؟")) {
+                logout();
+            }
+        });
+
+        // ── Initial load ──────────────────────────────────────────────────
+        loadProfile();
+        loadOrders();
+    });
+
+    function switchTab(tabName, event) {
+        document.querySelectorAll(".profile-section").forEach(s => s.classList.remove("active"));
+        document.querySelectorAll(".profile-menu .menu-btn").forEach(b => b.classList.remove("active"));
+
+        const target = document.getElementById(tabName + "-section");
+        if (target) target.classList.add("active");
+        if (event && event.currentTarget) event.currentTarget.classList.add("active");
+    }
+    </script>
 </body>
 
 </html>
